@@ -27,7 +27,7 @@ spec:
   chart:
     spec:
       chart: kafka
-      version: "v26.100.4"
+      #version: "v26.100.4"
       sourceRef:
         kind: HelmRepository
         name: raju-charts
