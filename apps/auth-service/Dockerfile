@@ -1,11 +1,14 @@
-FROM node:20-alpine AS builder
+FROM node:18-alpine
+
 WORKDIR /app
+
+# package.json copy karein (package-lock na bhi ho toh chalega)
 COPY package*.json ./
-RUN npm ci
+
+# npm ci ko badal kar npm install karein
+RUN npm install
+
 COPY . .
 
-FROM node:20-alpine
-WORKDIR /app
-COPY --from=builder /app /app
 EXPOSE 5000
-CMD ["node", "index.js"]
+CMD ["npm", "start"]
