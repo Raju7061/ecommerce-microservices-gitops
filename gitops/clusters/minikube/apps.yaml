@@ -1,40 +1,70 @@
-apiVersion: kustomize.toolkit.fluxcd.io/v1
-kind: Kustomization
+apiVersion: source.toolkit.fluxcd.io/v1
+kind: HelmRepository
 metadata:
-  name: raju-stack-infrastructure
+  name: raju-charts
   namespace: flux-system
 spec:
-  interval: 1m
-  path: "./gitops/k8s-manifests/infrastructure"
-  sourceRef:
-    kind: GitRepository
-    name: flux-system
-  prune: true
-  wait: true
+  interval: 5m
+  url: https://charts.bitnami.com/bitnami
 ---
-apiVersion: kustomize.toolkit.fluxcd.io/v1
-kind: Kustomization
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
 metadata:
-  name: raju-stack-applications
-  namespace: flux-system
+  name: raju-stack
+  namespace: raju
 spec:
+  releaseName: raju-stack
   interval: 1m
-  dependsOn:
-    - name: raju-stack-infrastructure
-  path: "./gitops/k8s-manifests/applications"
-  sourceRef:
-    kind: GitRepository
-    name: flux-system
-  prune: true
-  wait: true
-  # Global System Release Tag tracking details block
-  # GitHub Actions automatic is pure block ko modify karega naye release par
-  images:
-    - name: 2024dock/auth-service
-      newTag: "1.0.3"
-    - name: 2024dock/product-service
-      newTag: "1.0.0"
-    - name: 2024dock/order-service
-      newTag: "1.0.0"
-    - name: 2024dock/frontend
-      newTag: "1.0.0"
+  timeout: 5m
+  chart:
+    spec:
+      chart: kafka
+      version: "26.100.2"              # <-- Tumhara exact desired version jo tum terminal par dekhoge
+      sourceRef:
+        kind: HelmRepository
+        name: raju-charts
+        namespace: flux-system
+  values:
+    # 1. Global & Common Configurations
+    global:
+      storageClass: "standard"
+    
+    # 2. Infrastructure Layer Configurations (Kafka Override)
+    replicaCount: 1
+    listeners:
+      client:
+        protocol: PLAINTEXT
+        port: 9092
+    zookeeper:
+      enabled: true
+      replicaCount: 1
+
+    # 3. Microservices Custom Values Injection (Jo aapke application layer ke liye hain)
+    authService:
+      enabled: true
+      image: "2024dock/auth-service:1.0.3"
+      replicaCount: 1
+      port: 8080
+      env:
+        - name: DB_HOST
+          value: "postgres"
+        - name: KAFKA_HOST
+          value: "localhost"
+
+    productService:
+      enabled: true
+      image: "2024dock/product-service:1.0.0"
+      replicaCount: 1
+      port: 8081
+
+    orderService:
+      enabled: true
+      image: "2024dock/order-service:1.0.0"
+      replicaCount: 1
+      port: 8082
+
+    frontend:
+      enabled: true
+      image: "2024dock/frontend:1.0.0"
+      replicaCount: 1
+      port: 80

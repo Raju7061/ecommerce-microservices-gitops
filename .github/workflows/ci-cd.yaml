@@ -5,6 +5,7 @@ on:
     branches: [ main ]
     paths:
       - 'apps/**'
+      - 'gitops/**'
 
 jobs:
   determine-and-release:
@@ -18,24 +19,13 @@ jobs:
           fetch-depth: 0
           token: ${{ secrets.GH_PAT }} # Admin token for unlocking protected pushes
 
-      # 1. Detect which application directory actually changed
-      - name: Check Changed Services
-        id: filter
-        uses: dorny/paths-filter@v3
-        with:
-          filters: |
-            auth: ['apps/auth-service/**']
-            product: ['apps/product-service/**']
-            order: ['apps/order-service/**']
-            frontend: ['apps/frontend/**']
-
       - name: Log into Docker Hub
         uses: docker/login-action@v3
         with:
           username: 2024dock
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-      # 2. Extract context state & calculate release paths
+      # 1. Extract context state & calculate release paths
       - name: Calculate New Versions
         id: versions
         run: |
@@ -53,9 +43,8 @@ jobs:
           echo "NEW_GLOBAL_RELEASE=$NEW_GLOBAL_RELEASE" >> $GITHUB_ENV
           echo "SVC_VERSION=1.0.${{ github.run_number }}" >> $GITHUB_ENV
 
-      # 3. Compile and push individual builds conditionally
+      # 2. Compile and push ALL individual builds simultaneously to Docker Hub
       - name: Build & Push Auth Service
-        if: steps.filter.outputs.auth == 'true'
         uses: docker/build-push-action@v5
         with:
           context: ./apps/auth-service
@@ -63,7 +52,6 @@ jobs:
           tags: 2024dock/auth-service:${{ env.SVC_VERSION }}
 
       - name: Build & Push Order Service
-        if: steps.filter.outputs.order == 'true'
         uses: docker/build-push-action@v5
         with:
           context: ./apps/order-service
@@ -71,7 +59,6 @@ jobs:
           tags: 2024dock/order-service:${{ env.SVC_VERSION }}
 
       - name: Build & Push Product Service
-        if: steps.filter.outputs.product == 'true'
         uses: docker/build-push-action@v5
         with:
           context: ./apps/product-service
@@ -79,15 +66,14 @@ jobs:
           tags: 2024dock/product-service:${{ env.SVC_VERSION }}
 
       - name: Build & Push Frontend
-        if: steps.filter.outputs.frontend == 'true'
         uses: docker/build-push-action@v5
         with:
           context: ./apps/frontend
           push: true
           tags: 2024dock/frontend:${{ env.SVC_VERSION }}
 
-      # 4. Automate Kustomize Multi-Line Text Updates into apps.yaml
-      - name: Update Flux Kustomization Target
+      # 3. Automate HelmRelease Target Updates into apps.yaml
+      - name: Update Flux HelmRelease Target
         env:
           GITHUB_TOKEN: ${{ secrets.GH_PAT }}
         run: |
@@ -96,27 +82,16 @@ jobs:
           
           TARGET_FILE="gitops/clusters/minikube/apps.yaml"
           
-          # Pure document me version entries track karke sync karein
-          sed -i "s/version: .*/version: \"${{ env.NEW_GLOBAL_RELEASE }}\"/g" $TARGET_FILE
+          # 1. Helm Release Chart ka Main Version update karein (Taaki flux get hr me v26.100.x dikhe)
+          sed -i "s/version: \"26\..*\"/version: \"${{ env.NEW_GLOBAL_RELEASE }}\"/g" $TARGET_FILE
           
-          # Context-Aware Kustomize matching rewrite block
-          if [ "${{ steps.filter.outputs.auth }}" = "true" ]; then
-            sed -i "/name: 2024dock\/auth-service/{n;s/newTag: .*/newTag: \"${{ env.SVC_VERSION }}\"/}" $TARGET_FILE
-          fi
+          # 2. Values block ke andar saari images ke tags ko fresh SVC_VERSION se sync karein
+          sed -i "s|image: \"2024dock/auth-service:.*\"|image: \"2024dock/auth-service:${{ env.SVC_VERSION }}\"|g" $TARGET_FILE
+          sed -i "s|image: \"2024dock/order-service:.*\"|image: \"2024dock/order-service:${{ env.SVC_VERSION }}\"|g" $TARGET_FILE
+          sed -i "s|image: \"2024dock/product-service:.*\"|image: \"2024dock/product-service:${{ env.SVC_VERSION }}\"|g" $TARGET_FILE
+          sed -i "s|image: \"2024dock/frontend:.*\"|image: \"2024dock/frontend:${{ env.SVC_VERSION }}\"|g" $TARGET_FILE
           
-          if [ "${{ steps.filter.outputs.order }}" = "true" ]; then
-            sed -i "/name: 2024dock\/order-service/{n;s/newTag: .*/newTag: \"${{ env.SVC_VERSION }}\"/}" $TARGET_FILE
-          fi
-          
-          if [ "${{ steps.filter.outputs.product }}" = "true" ]; then
-            sed -i "/name: 2024dock\/product-service/{n;s/newTag: .*/newTag: \"${{ env.SVC_VERSION }}\"/}" $TARGET_FILE
-          fi
-          
-          if [ "${{ steps.filter.outputs.frontend }}" = "true" ]; then
-            sed -i "/name: 2024dock\/frontend/{n;s/newTag: .*/newTag: \"${{ env.SVC_VERSION }}\"/}" $TARGET_FILE
-          fi
-          
-          # Stage, local commit execution aur [skip ci] logic injection
+          # Stage, local commit execution aur [skip ci] logic injection loop se bachne ke liye
           git add $TARGET_FILE
           git commit -m "chore(release): trigger rollout v${{ env.NEW_GLOBAL_RELEASE }} [skip ci]" || echo "No files modified"
           
@@ -124,7 +99,7 @@ jobs:
           git remote set-url origin https://x-access-token:${{ secrets.GH_PAT }}@github.com/${{ github.repository }}.git
           git push origin main
 
-      # 5. Native tagging execution step
+      # 4. Native tagging execution step
       - name: Create System Release Tag
         run: |
           git tag ${{ env.NEW_GLOBAL_RELEASE }}
