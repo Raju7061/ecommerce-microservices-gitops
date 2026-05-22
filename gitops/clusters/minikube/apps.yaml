@@ -31,7 +31,7 @@ spec:
   # GitHub Actions automatic is pure block ko modify karega naye release par
   images:
     - name: 2024dock/auth-service
-      newTag: "1.0.0"
+      newTag: "1.0.3"
     - name: 2024dock/product-service
       newTag: "1.0.0"
     - name: 2024dock/order-service
