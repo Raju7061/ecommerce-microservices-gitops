@@ -33,7 +33,7 @@ spec:
   chart:
     spec:
       chart: kafka
-      version: "26.100.2"              # <-- Tumhara exact version jo terminal par dikhega
+      version: "v26.100.2"              # <-- Tumhara exact version jo terminal par dikhega
       sourceRef:
         kind: HelmRepository
         name: raju-charts
@@ -72,7 +72,7 @@ spec:
             spec:
               containers:
                 - name: auth-service
-                  image: "2024dock/auth-service:1.0.3"
+                  image: "2024dock/auth-service:1.0.8"
                   ports:
                     - containerPort: 8080
                   env:
@@ -95,7 +95,7 @@ spec:
             spec:
               containers:
                 - name: product-service
-                  image: "2024dock/product-service:1.0.0"
+                  image: "2024dock/product-service:1.0.8"
                   ports:
                     - containerPort: 8081
       - apiVersion: apps/v1
@@ -115,7 +115,7 @@ spec:
             spec:
               containers:
                 - name: order-service
-                  image: "2024dock/order-service:1.0.0"
+                  image: "2024dock/order-service:1.0.8"
                   ports:
                     - containerPort: 8082
       - apiVersion: apps/v1
@@ -135,6 +135,6 @@ spec:
             spec:
               containers:
                 - name: frontend
-                  image: "2024dock/frontend:1.0.0"
+                  image: "2024dock/frontend:1.0.8"
                   ports:
                     - containerPort: 80
