@@ -1,9 +1,11 @@
+# Stage 1: Build/Install dependencies
 FROM node:20-alpine AS builder
 WORKDIR /app
 COPY package*.json ./
-RUN npm ci
+RUN npm install
 COPY . .
 
+# Stage 2: Run the lean production container
 FROM node:20-alpine
 WORKDIR /app
 COPY --from=builder /app /app

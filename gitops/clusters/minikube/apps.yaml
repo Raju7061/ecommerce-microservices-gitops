@@ -1,3 +1,17 @@
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: raju-stack-root
+  namespace: flux-system
+spec:
+  interval: 1m
+  path: "./gitops/clusters/minikube"
+  sourceRef:
+    kind: GitRepository
+    name: flux-system
+  prune: true
+  wait: true
+---
 apiVersion: source.toolkit.fluxcd.io/v1
 kind: HelmRepository
 metadata:
@@ -19,17 +33,15 @@ spec:
   chart:
     spec:
       chart: kafka
-      version: "26.100.2"              # <-- Tumhara exact desired version jo tum terminal par dekhoge
+      version: "26.100.2"              # <-- Tumhara exact version jo terminal par dikhega
       sourceRef:
         kind: HelmRepository
         name: raju-charts
         namespace: flux-system
   values:
-    # 1. Global & Common Configurations
+    # 1. Global & Kafka Configurations (Bitnami Chart Standard Spec)
     global:
       storageClass: "standard"
-    
-    # 2. Infrastructure Layer Configurations (Kafka Override)
     replicaCount: 1
     listeners:
       client:
@@ -39,32 +51,90 @@ spec:
       enabled: true
       replicaCount: 1
 
-    # 3. Microservices Custom Values Injection (Jo aapke application layer ke liye hain)
-    authService:
-      enabled: true
-      image: "2024dock/auth-service:1.0.3"
-      replicaCount: 1
-      port: 8080
-      env:
-        - name: DB_HOST
-          value: "postgres"
-        - name: KAFKA_HOST
-          value: "localhost"
-
-    productService:
-      enabled: true
-      image: "2024dock/product-service:1.0.0"
-      replicaCount: 1
-      port: 8081
-
-    orderService:
-      enabled: true
-      image: "2024dock/order-service:1.0.0"
-      replicaCount: 1
-      port: 8082
-
-    frontend:
-      enabled: true
-      image: "2024dock/frontend:1.0.0"
-      replicaCount: 1
-      port: 80
+    # 2. Extra Deployments Injection 
+    # Bitnami Kafka ke andar custom extraDeployments block use karna padta hai 
+    # taaki tumhari microservices bhi isi release ke sath bound hokar upar aayein:
+    extraDeployments:
+      - apiVersion: apps/v1
+        kind: Deployment
+        metadata:
+          name: auth-service
+          namespace: raju
+        spec:
+          replicas: 1
+          selector:
+            matchLabels:
+              app: auth-service
+          template:
+            metadata:
+              labels:
+                app: auth-service
+            spec:
+              containers:
+                - name: auth-service
+                  image: "2024dock/auth-service:1.0.3"
+                  ports:
+                    - containerPort: 8080
+                  env:
+                    - name: KAFKA_HOST
+                      value: "raju-stack-kafka"
+      - apiVersion: apps/v1
+        kind: Deployment
+        metadata:
+          name: product-service
+          namespace: raju
+        spec:
+          replicas: 1
+          selector:
+            matchLabels:
+              app: product-service
+          template:
+            metadata:
+              labels:
+                app: product-service
+            spec:
+              containers:
+                - name: product-service
+                  image: "2024dock/product-service:1.0.0"
+                  ports:
+                    - containerPort: 8081
+      - apiVersion: apps/v1
+        kind: Deployment
+        metadata:
+          name: order-service
+          namespace: raju
+        spec:
+          replicas: 1
+          selector:
+            matchLabels:
+              app: order-service
+          template:
+            metadata:
+              labels:
+                app: order-service
+            spec:
+              containers:
+                - name: order-service
+                  image: "2024dock/order-service:1.0.0"
+                  ports:
+                    - containerPort: 8082
+      - apiVersion: apps/v1
+        kind: Deployment
+        metadata:
+          name: frontend
+          namespace: raju
+        spec:
+          replicas: 1
+          selector:
+            matchLabels:
+              app: frontend
+          template:
+            metadata:
+              labels:
+                app: frontend
+            spec:
+              containers:
+                - name: frontend
+                  image: "2024dock/frontend:1.0.0"
+                  ports:
+                    - containerPort: 80
