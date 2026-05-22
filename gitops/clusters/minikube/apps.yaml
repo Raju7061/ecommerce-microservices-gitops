@@ -1,10 +1,10 @@
-# 1. Namespace for all services
+# 1. Namespace
 apiVersion: v1
 kind: Namespace
 metadata:
   name: raju
 ---
-# 2. Helm Repository for Kafka
+# 2. Helm Repository
 apiVersion: source.toolkit.fluxcd.io/v1
 kind: HelmRepository
 metadata:
@@ -27,7 +27,7 @@ spec:
   chart:
     spec:
       chart: kafka
-      version: "v26.100.3"
+      version: "26.100.2"
       sourceRef:
         kind: HelmRepository
         name: raju-charts
@@ -43,7 +43,6 @@ spec:
     zookeeper:
       enabled: true
       replicaCount: 1
-    # Microservices as Extra Deployments
     extraDeployments:
       - apiVersion: apps/v1
         kind: Deployment
@@ -62,7 +61,7 @@ spec:
             spec:
               containers:
                 - name: auth-service
-                  image: "2024dock/auth-service:1.0.9"
+                  image: "2024dock/auth-service:1.0.8"
                   ports:
                     - containerPort: 8080
                   env:
@@ -85,7 +84,7 @@ spec:
             spec:
               containers:
                 - name: product-service
-                  image: "2024dock/product-service:1.0.9"
+                  image: "2024dock/product-service:1.0.8"
                   ports:
                     - containerPort: 8081
       - apiVersion: apps/v1
@@ -93,7 +92,7 @@ spec:
         metadata:
           name: order-service
           namespace: raju
-        spec: 1
+        spec:
           replicas: 1
           selector:
             matchLabels:
@@ -105,7 +104,7 @@ spec:
             spec:
               containers:
                 - name: order-service
-                  image: "2024dock/order-service:1.0.9"
+                  image: "2024dock/order-service:1.0.8"
                   ports:
                     - containerPort: 8082
       - apiVersion: apps/v1
@@ -125,6 +124,6 @@ spec:
             spec:
               containers:
                 - name: frontend
-                  image: "2024dock/frontend:1.0.9"
+                  image: "2024dock/frontend:1.0.8"
                   ports:
                     - containerPort: 80
