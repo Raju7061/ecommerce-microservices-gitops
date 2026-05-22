@@ -27,7 +27,7 @@ spec:
   chart:
     spec:
       chart: kafka
-      #version: "v26.100.4"
+      version: "32.4.3"  # <--- Sahi version hona zaroori hai
       sourceRef:
         kind: HelmRepository
         name: raju-charts
