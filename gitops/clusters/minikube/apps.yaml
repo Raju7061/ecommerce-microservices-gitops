@@ -1,17 +1,10 @@
-apiVersion: kustomize.toolkit.fluxcd.io/v1
-kind: Kustomization
+# 1. Namespace for all services
+apiVersion: v1
+kind: Namespace
 metadata:
-  name: raju-stack-root
-  namespace: flux-system
-spec:
-  interval: 1m
-  path: "./gitops/clusters/minikube"
-  sourceRef:
-    kind: GitRepository
-    name: flux-system
-  prune: true
-  wait: true
+  name: raju
 ---
+# 2. Helm Repository for Kafka
 apiVersion: source.toolkit.fluxcd.io/v1
 kind: HelmRepository
 metadata:
@@ -21,6 +14,7 @@ spec:
   interval: 5m
   url: https://charts.bitnami.com/bitnami
 ---
+# 3. Helm Release
 apiVersion: helm.toolkit.fluxcd.io/v2
 kind: HelmRelease
 metadata:
@@ -33,13 +27,12 @@ spec:
   chart:
     spec:
       chart: kafka
-      version: "v26.100.2"              # <-- Tumhara exact version jo terminal par dikhega
+      version: "26.100.2"
       sourceRef:
         kind: HelmRepository
         name: raju-charts
         namespace: flux-system
   values:
-    # 1. Global & Kafka Configurations (Bitnami Chart Standard Spec)
     global:
       storageClass: "standard"
     replicaCount: 1
@@ -50,10 +43,7 @@ spec:
     zookeeper:
       enabled: true
       replicaCount: 1
-
-    # 2. Extra Deployments Injection 
-    # Bitnami Kafka ke andar custom extraDeployments block use karna padta hai 
-    # taaki tumhari microservices bhi isi release ke sath bound hokar upar aayein:
+    # Microservices as Extra Deployments
     extraDeployments:
       - apiVersion: apps/v1
         kind: Deployment
@@ -103,7 +93,7 @@ spec:
         metadata:
           name: order-service
           namespace: raju
-        spec:
+        spec: 1
           replicas: 1
           selector:
             matchLabels:
