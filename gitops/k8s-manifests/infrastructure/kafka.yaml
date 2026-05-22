@@ -1,0 +1,63 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: kafka-ecosystem
+  namespace: raju
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: kafka-ecosystem
+  template:
+    metadata:
+      labels:
+        app: kafka-ecosystem
+    spec:
+      containers:
+        - name: zookeeper
+          image: confluentinc/cp-zookeeper:7.4.0
+          env:
+            - name: ZOOKEEPER_CLIENT_PORT
+              value: "2181"
+          ports:
+            - containerPort: 2181
+        - name: kafka
+          image: confluentinc/cp-kafka:7.4.0
+          ports:
+            - containerPort: 9092
+          env:
+            - name: KAFKA_ZOOKEEPER_CONNECT
+              value: "localhost:2181"
+            - name: KAFKA_ADVERTISED_LISTENERS
+              value: "PLAINTEXT://kafka:9092"
+            - name: KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR
+              value: "1"
+        - name: debezium
+          image: debezium/connect:2.4
+          ports:
+            - containerPort: 8083
+          env:
+            - name: BOOTSTRAP_SERVERS
+              value: "localhost:9092"
+            - name: GROUP_ID
+              value: "1"
+            - name: CONFIG_STORAGE_TOPIC
+              value: "debezium_configs"
+            - name: OFFSET_STORAGE_TOPIC
+              value: "debezium_offsets"
+            - name: STATUS_STORAGE_TOPIC
+              value: "debezium_status"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: kafka
+  namespace: raju
+spec:
+  ports:
+    - name: broker
+      port: 9092
+    - name: connect
+      port: 8083
+  selector:
+    app: kafka-ecosystem

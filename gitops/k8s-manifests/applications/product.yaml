@@ -1,0 +1,35 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: product-service
+  namespace: raju
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: product-service
+  template:
+    metadata:
+      labels:
+        app: product-service
+    spec:
+      containers:
+        - name: product-service
+          image: 2024dock/product-service:1.0.0
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 5001
+          env:
+            - name: ELASTICSEARCH_URL
+              value: "http://elasticsearch:9200"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: product-service
+  namespace: raju
+spec:
+  ports:
+    - port: 5001
+  selector:
+    app: product-service
