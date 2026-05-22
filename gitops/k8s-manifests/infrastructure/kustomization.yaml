@@ -1,0 +1,9 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+resources:
+  - namespace.yaml   # <-- Yeh line sabse upar rahegi taaki namespace pehle bane
+  - postgres.yaml
+  - kafka.yaml
+  - storage.yaml
+  - elastic.yaml
