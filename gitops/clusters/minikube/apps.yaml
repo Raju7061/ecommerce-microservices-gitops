@@ -1,36 +1,40 @@
-# 1. Namespace
-apiVersion: v1
-kind: Namespace
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
 metadata:
-  name: raju
----
-# 2. Helm Repository (Standard HTTPS - No OCI error)
-apiVersion: source.toolkit.fluxcd.io/v1
-kind: HelmRepository
-metadata:
-  name: raju-charts
+  name: raju-stack-infrastructure
   namespace: flux-system
 spec:
-  interval: 5m
-  url: https://charts.bitnami.com/bitnami
----
-# 3. HelmRelease (The one you want to see 'Succeeded')
-apiVersion: helm.toolkit.fluxcd.io/v2
-kind: HelmRelease
-metadata:
-  name: raju-stack
-  namespace: raju
-spec:
-  releaseName: raju-stack
   interval: 1m
-  chart:
-    spec:
-      chart: kafka
-      version: "26.100.2" # Fixed version
-      sourceRef:
-        kind: HelmRepository
-        name: raju-charts
-        namespace: flux-system
-  values:
-    replicaCount: 1
-    # Yahan tumhari services ka deployment logic wahi rahega
+  path: "./gitops/k8s-manifests/infrastructure"
+  sourceRef:
+    kind: GitRepository
+    name: flux-system
+  prune: true
+  wait: true
+---
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: raju-stack-applications
+  namespace: flux-system
+spec:
+  interval: 1m
+  dependsOn:
+    - name: raju-stack-infrastructure
+  path: "./gitops/k8s-manifests/applications"
+  sourceRef:
+    kind: GitRepository
+    name: flux-system
+  prune: true
+  wait: true
+  # Global System Release Tag tracking details block
+  # GitHub Actions automatic is pure block ko modify karega naye release par
+  images:
+    - name: 2024dock/auth-service
+      newTag: "1.0.0"
+    - name: 2024dock/product-service
+      newTag: "1.0.0"
+    - name: 2024dock/order-service
+      newTag: "1.0.0"
+    - name: 2024dock/frontend
+      newTag: "1.0.0"
