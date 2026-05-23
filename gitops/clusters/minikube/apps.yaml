@@ -1,7 +1,7 @@
 apiVersion: kustomize.toolkit.fluxcd.io/v1
 kind: Kustomization
 metadata:
-  name: raju-stack-infrastructure
+  name: raju-stack
   namespace: flux-system
 spec:
   interval: 1m
@@ -15,7 +15,7 @@ spec:
 apiVersion: kustomize.toolkit.fluxcd.io/v1
 kind: Kustomization
 metadata:
-  name: raju-stack-applications
+  name: raju-stack
   namespace: flux-system
 spec:
   interval: 1m
