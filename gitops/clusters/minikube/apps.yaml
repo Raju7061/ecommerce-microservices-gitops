@@ -1,5 +1,5 @@
 ---
-# 1. Infrastructure Kustomization: Yeh 'raju' namespace aur baki infra banayega
+# 1. Infrastructure Kustomization
 apiVersion: kustomize.toolkit.fluxcd.io/v1
 kind: Kustomization
 metadata:
@@ -14,7 +14,7 @@ spec:
     name: flux-system
 
 ---
-# 2. Application HelmRelease: Yeh infrastructure ke baad deploy hoga
+# 2. Application HelmRelease
 apiVersion: helm.toolkit.fluxcd.io/v2
 kind: HelmRelease
 metadata:
@@ -22,10 +22,10 @@ metadata:
   namespace: raju
 spec:
   interval: 1m
-  # 'dependsOn' ensure karta hai ki pehle namespace ban jaye
   dependsOn:
     - name: raju-infrastructure
       namespace: flux-system
+      kind: Kustomization  # <--- Yeh line add karna sabse zaroori hai
   chart:
     spec:
       chart: ./gitops/k8s-manifests/applications
