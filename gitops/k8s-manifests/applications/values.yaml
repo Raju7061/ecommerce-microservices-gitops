@@ -1,18 +1,18 @@
 global:
-  version: "v26.100.8"
+  version: "v26.100.9"
 
 authService:
   image: "2024dock/auth-service"
-  tag: "1.0.13"
+  tag: "1.0.14"
 
 frontend:
   image: "2024dock/frontend"
-  tag: "1.0.13"
+  tag: "1.0.14"
 
 orderService:
   image: "2024dock/order-service"
-  tag: "1.0.13"
+  tag: "1.0.14"
 
 productService:
   image: "2024dock/product-service"
-  tag: "1.0.13"
+  tag: "1.0.14"
