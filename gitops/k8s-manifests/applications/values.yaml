@@ -1,16 +1,18 @@
-# Global configuration used across all templates
 global:
-  tag: "v26.100.8" # Yahan se tum version change karoge aur saari services update ho jayengi
+  version: "v26.100.8"
 
-# Microservices specific image names
 authService:
   image: "2024dock/auth-service"
+  tag: "1.0.13"
 
 frontend:
   image: "2024dock/frontend"
+  tag: "1.0.13"
 
 orderService:
   image: "2024dock/order-service"
+  tag: "1.0.13"
 
 productService:
   image: "2024dock/product-service"
+  tag: "1.0.13"
