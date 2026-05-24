@@ -16,7 +16,7 @@ spec:
 
 ---
 # Application HelmRelease
-apiVersion: helm.toolkit.fluxcd.io/v2 # Yahan v2 use karo
+apiVersion: helm.toolkit.fluxcd.io/v2
 kind: HelmRelease
 metadata:
   name: raju-stack
@@ -29,7 +29,13 @@ spec:
       sourceRef:
         kind: GitRepository
         name: flux-system
-        namespace: flux-system # Yeh zaroori hai!
+        namespace: flux-system
   values:
+    # Tumhari CI/CD yahan tags update karega
     global:
-      tag: "v26.100.5"
+      tag: "1.0.0" 
+      images:
+        auth-service: "2024dock/auth-service:1.0.0"
+        order-service: "2024dock/order-service:1.0.0"
+        product-service: "2024dock/product-service:1.0.0"
+        frontend: "2024dock/frontend:1.0.0"
