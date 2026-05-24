@@ -15,14 +15,14 @@ spec:
     spec:
       containers:
         - name: auth-service
-          # Updated image tag
-          image: 2024dock/auth-service:{{ .Values.global.tag }}
+          image: "{{ .Values.authService.image }}:{{ .Values.authService.tag }}"
           imagePullPolicy: Always
           ports:
             - containerPort: 5000
           env:
             - name: JWT_SECRET
               value: "supersecret_electronics_key"
+
 ---
 apiVersion: v1
 kind: Service
@@ -32,5 +32,6 @@ metadata:
 spec:
   ports:
     - port: 5000
+      targetPort: 5000
   selector:
     app: auth-service

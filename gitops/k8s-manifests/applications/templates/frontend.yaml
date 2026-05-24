@@ -15,11 +15,11 @@ spec:
     spec:
       containers:
         - name: frontend
-          # Updated image tag
-          image: 2024dock/frontend:{{ .Values.global.tag }}
+          image: "{{ .Values.frontend.image }}:{{ .Values.frontend.tag }}"
           imagePullPolicy: Always
           ports:
             - containerPort: 80
+
 ---
 apiVersion: v1
 kind: Service
@@ -29,5 +29,6 @@ metadata:
 spec:
   ports:
     - port: 80
+      targetPort: 80
   selector:
     app: frontend

@@ -5,12 +5,16 @@ metadata:
   namespace: raju
 spec:
   interval: 1m
+
   chart:
     spec:
-      chart: . # Current directory (applications folder)
+      chart: ./gitops/k8s-manifests/applications
       sourceRef:
         kind: GitRepository
         name: flux-system
-  values:
-    global:
-      tag: "v26.100.5"
+        namespace: flux-system
+
+  valuesFrom:
+    - kind: ConfigMap
+      name: raju-stack-values
+      valuesKey: values.yaml

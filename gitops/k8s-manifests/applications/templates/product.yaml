@@ -15,14 +15,14 @@ spec:
     spec:
       containers:
         - name: product-service
-          # Updated image tag
-          image: 2024dock/product-service:{{ .Values.global.tag }}
+          image: "{{ .Values.productService.image }}:{{ .Values.productService.tag }}"
           imagePullPolicy: Always
           ports:
             - containerPort: 5001
           env:
             - name: ELASTICSEARCH_URL
               value: "http://elasticsearch:9200"
+
 ---
 apiVersion: v1
 kind: Service
@@ -32,5 +32,6 @@ metadata:
 spec:
   ports:
     - port: 5001
+      targetPort: 5001
   selector:
     app: product-service
