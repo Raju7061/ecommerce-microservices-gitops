@@ -2,7 +2,7 @@
   "name": "auth-service",
   "version": "1.0.0",
   "description": "Authentication Microservice for Raju Stack Electronics Shop",
-  "main": "server.js",
+  "main": "index.js",
   "scripts": {
     "start": "node server.js",
     "dev": "nodemon server.js"
