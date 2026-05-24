@@ -1,4 +1,4 @@
-# 1. Infrastructure Layer
+# 1. Infrastructure Layer (Database, Elastic, etc.)
 apiVersion: kustomize.toolkit.fluxcd.io/v1
 kind: Kustomization
 metadata:
@@ -12,8 +12,12 @@ spec:
     name: flux-system
   prune: true
   wait: true
+  # Infrastructure fix: agar kafka nahi chahiye, toh infrastructure 
+  # folder se kafka.yaml hata dena, yahan kuch nahi karna padega.
+
 ---
-# 2. Applications Layer
+
+# 2. Applications Layer (Services)
 apiVersion: kustomize.toolkit.fluxcd.io/v1
 kind: Kustomization
 metadata:
@@ -29,13 +33,13 @@ spec:
     name: flux-system
   prune: true
   wait: true
-  # Image patching (Flux native feature)
+  # Image Patching: GitHub Actions yahan ka 'newTag' update karega
   images:
     - name: 2024dock/auth-service
-      newTag: "1.0.0"
+      newTag: "1.0.11"
     - name: 2024dock/product-service
-      newTag: "1.0.0"
+      newTag: "1.0.11"
     - name: 2024dock/order-service
-      newTag: "1.0.0"
+      newTag: "1.0.11"
     - name: 2024dock/frontend
-      newTag: "1.0.0"
+      newTag: "1.0.11"
