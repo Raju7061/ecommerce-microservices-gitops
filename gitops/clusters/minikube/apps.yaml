@@ -15,7 +15,7 @@ spec:
 
 ---
 # 2. Application HelmRelease
-apiVersion: helm.toolkit.fluxcd.io/v1beta2
+apiVersion: helm.toolkit.fluxcd.io/v1
 kind: HelmRelease
 metadata:
   name: raju-stack
