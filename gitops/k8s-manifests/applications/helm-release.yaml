@@ -1,0 +1,16 @@
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: raju-stack
+  namespace: raju
+spec:
+  interval: 1m
+  chart:
+    spec:
+      chart: . # Current directory (applications folder)
+      sourceRef:
+        kind: GitRepository
+        name: flux-system
+  values:
+    global:
+      tag: "v26.100.5"

@@ -1,0 +1,8 @@
+# File: gitops/k8s-manifests/applications/kustomization.yaml
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+  - Chart.yaml
+  - values.yaml
+  # HelmRelease ko yahan resource ke roop mein add karna hoga
+  - helm-release.yaml
