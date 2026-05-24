@@ -15,20 +15,20 @@ spec:
 
 ---
 # 2. Application HelmRelease
-apiVersion: helm.toolkit.fluxcd.io/v2
+apiVersion: helm.toolkit.fluxcd.io/v1beta2
 kind: HelmRelease
 metadata:
   name: raju-stack
   namespace: raju
 spec:
   interval: 1m
-  # Dependency block hata diya hai taaki schema error na aaye
   chart:
     spec:
       chart: ./gitops/k8s-manifests/applications
       sourceRef:
         kind: GitRepository
         name: flux-system
+        namespace: flux-system # Yeh zaroori hai taaki cross-namespace access ho
   values:
     global:
       tag: "v26.100.5"
