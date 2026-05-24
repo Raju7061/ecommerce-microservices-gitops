@@ -1,7 +1,8 @@
+# 1. Infrastructure Layer
 apiVersion: kustomize.toolkit.fluxcd.io/v1
 kind: Kustomization
 metadata:
-  name: raju-stack
+  name: raju-infrastructure
   namespace: flux-system
 spec:
   interval: 1m
@@ -12,23 +13,23 @@ spec:
   prune: true
   wait: true
 ---
+# 2. Applications Layer
 apiVersion: kustomize.toolkit.fluxcd.io/v1
 kind: Kustomization
 metadata:
-  name: raju-stack
+  name: raju-applications
   namespace: flux-system
 spec:
   interval: 1m
   dependsOn:
-    - name: raju-stack-infrastructure
+    - name: raju-infrastructure
   path: "./gitops/k8s-manifests/applications"
   sourceRef:
     kind: GitRepository
     name: flux-system
   prune: true
   wait: true
-  # Global System Release Tag tracking details block
-  # GitHub Actions automatic is pure block ko modify karega naye release par
+  # Image patching (Flux native feature)
   images:
     - name: 2024dock/auth-service
       newTag: "1.0.0"
