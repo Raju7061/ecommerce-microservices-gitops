@@ -22,10 +22,7 @@ metadata:
   namespace: raju
 spec:
   interval: 1m
-  dependsOn:
-    - name: raju-infrastructure
-      namespace: flux-system
-      kind: Kustomization  # <--- Yeh line add karna sabse zaroori hai
+  # Dependency block hata diya hai taaki schema error na aaye
   chart:
     spec:
       chart: ./gitops/k8s-manifests/applications
