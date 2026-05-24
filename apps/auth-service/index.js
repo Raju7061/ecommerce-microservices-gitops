@@ -7,6 +7,7 @@ const JWT_SECRET = process.env.JWT_SECRET || 'supersecret_electronics_key';
 
 // Mock user store for local setup
 const users = [];
+console.log("hi")
 
 app.post('/api/auth/register', (req, res) => {
     const { email, password } = req.body;
