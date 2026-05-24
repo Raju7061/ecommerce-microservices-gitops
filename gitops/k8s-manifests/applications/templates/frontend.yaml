@@ -15,7 +15,8 @@ spec:
     spec:
       containers:
         - name: frontend
-          image: 2024dock/frontend:1.0.0
+          # Updated image tag
+          image: 2024dock/frontend:{{ .Values.global.tag }}
           imagePullPolicy: Always
           ports:
             - containerPort: 80

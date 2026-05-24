@@ -15,7 +15,8 @@ spec:
     spec:
       containers:
         - name: product-service
-          image: 2024dock/product-service:1.0.0
+          # Updated image tag
+          image: 2024dock/product-service:{{ .Values.global.tag }}
           imagePullPolicy: Always
           ports:
             - containerPort: 5001

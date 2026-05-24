@@ -1,45 +1,16 @@
-# 1. Infrastructure Layer (Database, Elastic, etc.)
-apiVersion: kustomize.toolkit.fluxcd.io/v1
-kind: Kustomization
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
 metadata:
-  name: raju-infrastructure
-  namespace: flux-system
+  name: raju-stack
+  namespace: raju
 spec:
   interval: 1m
-  path: "./gitops/k8s-manifests/infrastructure"
-  sourceRef:
-    kind: GitRepository
-    name: flux-system
-  prune: true
-  wait: true
-  # Infrastructure fix: agar kafka nahi chahiye, toh infrastructure 
-  # folder se kafka.yaml hata dena, yahan kuch nahi karna padega.
-
----
-
-# 2. Applications Layer (Services)
-apiVersion: kustomize.toolkit.fluxcd.io/v1
-kind: Kustomization
-metadata:
-  name: raju-applications
-  namespace: flux-system
-spec:
-  interval: 1m
-  dependsOn:
-    - name: raju-infrastructure
-  path: "./gitops/k8s-manifests/applications"
-  sourceRef:
-    kind: GitRepository
-    name: flux-system
-  prune: true
-  wait: true
-  # Image Patching: GitHub Actions yahan ka 'newTag' update karega
-  images:
-    - name: 2024dock/auth-service
-      newTag: "1.0.11"
-    - name: 2024dock/product-service
-      newTag: "1.0.11"
-    - name: 2024dock/order-service
-      newTag: "1.0.11"
-    - name: 2024dock/frontend
-      newTag: "1.0.11"
+  chart:
+    spec:
+      chart: ./gitops/k8s-manifests/applications
+      sourceRef:
+        kind: GitRepository
+        name: flux-system
+  values:
+    global:
+      tag: "v26.100.5"

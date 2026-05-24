@@ -15,7 +15,8 @@ spec:
     spec:
       containers:
         - name: order-service
-          image: 2024dock/order-service:1.0.0
+          # Updated image tag
+          image: 2024dock/order-service:{{ .Values.global.tag }}
           imagePullPolicy: Always
           ports:
             - containerPort: 5002
