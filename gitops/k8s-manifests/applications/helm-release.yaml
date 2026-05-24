@@ -1,8 +1,10 @@
 apiVersion: helm.toolkit.fluxcd.io/v2
 kind: HelmRelease
+
 metadata:
   name: raju-stack
   namespace: raju
+
 spec:
   interval: 1m
 

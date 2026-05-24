@@ -1,24 +1,31 @@
 apiVersion: apps/v1
 kind: Deployment
+
 metadata:
   name: product-service
   namespace: raju
+
 spec:
   replicas: 1
+
   selector:
     matchLabels:
       app: product-service
+
   template:
     metadata:
       labels:
         app: product-service
+
     spec:
       containers:
         - name: product-service
           image: "{{ .Values.productService.image }}:{{ .Values.productService.tag }}"
           imagePullPolicy: Always
+
           ports:
             - containerPort: 5001
+
           env:
             - name: ELASTICSEARCH_URL
               value: "http://elasticsearch:9200"
@@ -26,12 +33,15 @@ spec:
 ---
 apiVersion: v1
 kind: Service
+
 metadata:
   name: product-service
   namespace: raju
+
 spec:
   ports:
     - port: 5001
       targetPort: 5001
+
   selector:
     app: product-service

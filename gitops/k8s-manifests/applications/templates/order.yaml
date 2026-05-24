@@ -1,39 +1,50 @@
 apiVersion: apps/v1
 kind: Deployment
+
 metadata:
   name: order-service
   namespace: raju
+
 spec:
   replicas: 1
+
   selector:
     matchLabels:
       app: order-service
+
   template:
     metadata:
       labels:
         app: order-service
+
     spec:
       containers:
         - name: order-service
           image: "{{ .Values.orderService.image }}:{{ .Values.orderService.tag }}"
           imagePullPolicy: Always
+
           ports:
             - containerPort: 5002
+
           env:
             - name: DATABASE_URL
               value: "postgres://pgadmin:password123@postgres:5432/ecommerce"
+
             - name: JWT_SECRET
               value: "supersecret_electronics_key"
 
 ---
 apiVersion: v1
 kind: Service
+
 metadata:
   name: order-service
   namespace: raju
+
 spec:
   ports:
     - port: 5002
       targetPort: 5002
+
   selector:
     app: order-service

@@ -1,6 +1,6 @@
 apiVersion: v2
 name: raju-stack
-description: A Helm chart to deploy all microservices
+description: Helm chart for ecommerce microservices
 type: application
 version: 0.1.0
 appVersion: "1.0.0"

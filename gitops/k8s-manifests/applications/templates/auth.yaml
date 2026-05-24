@@ -1,24 +1,31 @@
 apiVersion: apps/v1
 kind: Deployment
+
 metadata:
   name: auth-service
   namespace: raju
+
 spec:
   replicas: 1
+
   selector:
     matchLabels:
       app: auth-service
+
   template:
     metadata:
       labels:
         app: auth-service
+
     spec:
       containers:
         - name: auth-service
           image: "{{ .Values.authService.image }}:{{ .Values.authService.tag }}"
           imagePullPolicy: Always
+
           ports:
             - containerPort: 5000
+
           env:
             - name: JWT_SECRET
               value: "supersecret_electronics_key"
@@ -26,12 +33,15 @@ spec:
 ---
 apiVersion: v1
 kind: Service
+
 metadata:
   name: auth-service
   namespace: raju
+
 spec:
   ports:
     - port: 5000
       targetPort: 5000
+
   selector:
     app: auth-service
