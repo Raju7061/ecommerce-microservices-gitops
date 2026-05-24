@@ -1,5 +1,5 @@
 ---
-# 1. Infrastructure Kustomization
+# Infrastructure Kustomization
 apiVersion: kustomize.toolkit.fluxcd.io/v1
 kind: Kustomization
 metadata:
@@ -12,10 +12,11 @@ spec:
   sourceRef:
     kind: GitRepository
     name: flux-system
+    namespace: flux-system
 
 ---
-# 2. Application HelmRelease
-apiVersion: helm.toolkit.fluxcd.io/v1
+# Application HelmRelease
+apiVersion: helm.toolkit.fluxcd.io/v2 # Yahan v2 use karo
 kind: HelmRelease
 metadata:
   name: raju-stack
@@ -28,7 +29,7 @@ spec:
       sourceRef:
         kind: GitRepository
         name: flux-system
-        namespace: flux-system # Yeh zaroori hai taaki cross-namespace access ho
+        namespace: flux-system # Yeh zaroori hai!
   values:
     global:
       tag: "v26.100.5"
