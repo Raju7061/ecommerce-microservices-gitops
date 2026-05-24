@@ -3,6 +3,7 @@ const { Client } = require('@elastic/elasticsearch');
 const app = express();
 app.use(express.json());
 
+console.log("hi")
 // Connects to Elasticsearch Pod inside K8s cluster
 const esClient = new Client({ node: process.env.ELASTICSEARCH_URL || 'http://elasticsearch:9200' });
 
