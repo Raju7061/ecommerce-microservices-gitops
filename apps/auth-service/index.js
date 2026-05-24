@@ -12,7 +12,7 @@ console.log("hi")
 app.post('/api/auth/register', (req, res) => {
     const { email, password } = req.body;
     users.push({ email, password });
-    res.status(21).json({ message: "User registered successfully" });
+    res.status(201).json({ message: "User registered successfully" });
 });
 
 app.post('/api/auth/login', (req, res) => {
