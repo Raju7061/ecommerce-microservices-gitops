@@ -46,24 +46,27 @@ jobs:
           git config --global user.name "gitops-bot"
           git config --global user.email "bot@gitops.com"
           
-          # 1. Fetch latest changes to avoid rejection
-          git pull origin main --rebase
+          # Force sync with remote to avoid non-fast-forward errors
+          git fetch origin main
+          git reset --hard origin/main
           
           TARGET="gitops/clusters/minikube/apps.yaml"
           
-          # 2. Update global version and specific image tags
-          sed -i "s|tag: \"v26\..*\"|tag: \"${{ env.NEW_GLOBAL_RELEASE }}\"|g" $TARGET
+          # Update values
+          sed -i "s|tag: \".*\"|tag: \"${{ env.NEW_GLOBAL_RELEASE }}\"|g" $TARGET
           sed -i "s|auth-service: \".*\"|auth-service: \"2024dock/auth-service:${{ env.SVC_VERSION }}\"|g" $TARGET
           sed -i "s|order-service: \".*\"|order-service: \"2024dock/order-service:${{ env.SVC_VERSION }}\"|g" $TARGET
           sed -i "s|product-service: \".*\"|product-service: \"2024dock/product-service:${{ env.SVC_VERSION }}\"|g" $TARGET
           sed -i "s|frontend: \".*\"|frontend: \"2024dock/frontend:${{ env.SVC_VERSION }}\"|g" $TARGET
           
-          # 3. Commit and push
+          # Commit and Push
           git add $TARGET
-          git commit -m "chore(release): update to ${{ env.NEW_GLOBAL_RELEASE }} [skip ci]" || echo "No changes to commit"
-          git remote set-url origin https://x-access-token:${{ secrets.GH_PAT }}@github.com/${{ github.repository }}.git
-          git push origin main
+          if ! git diff --cached --quiet; then
+            git commit -m "chore(release): update to ${{ env.NEW_GLOBAL_RELEASE }} [skip ci]"
+            git remote set-url origin https://x-access-token:${{ secrets.GH_PAT }}@github.com/${{ github.repository }}.git
+            git push origin main
+          fi
           
-          # 4. Tagging
-          git tag ${{ env.NEW_GLOBAL_RELEASE }}
-          git push origin ${{ env.NEW_GLOBAL_RELEASE }}
+          # Tagging
+          git tag -f ${{ env.NEW_GLOBAL_RELEASE }}
+          git push origin ${{ env.NEW_GLOBAL_RELEASE }} --force
