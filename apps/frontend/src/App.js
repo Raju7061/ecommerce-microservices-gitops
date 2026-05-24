@@ -90,7 +90,7 @@ function App() {
           <div key={p.id} style={{ border: '1px solid #ddd', padding: '15px', borderRadius: '5px' }}>
             <h4>{p.name}</h4>
             <p>Price: ${p.price}</p>
-            <button onClick={() => addToCart(p)}>Add to Cart</button>
+            <button onClick={() => addToCart(p)}>Add to Cart Now</button>
           </div>
         ))}
       </div>
